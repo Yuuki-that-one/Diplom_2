@@ -5,13 +5,13 @@ import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.response.ValidatableResponse;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.yandex.praktikum.client.UserClient;
 import ru.yandex.praktikum.model.User;
-import ru.yandex.praktikum.model.UserCredentials;
 import ru.yandex.praktikum.model.UserGenerator;
 
 import static org.apache.http.HttpStatus.SC_OK;
@@ -46,29 +46,28 @@ public class TestUserCreate {
     @DisplayName("Создание юзера с валидными параметрами")
     public void UserCanBeCreatedWithValidData() {
         User user = UserGenerator.getRandom();
+        ValidatableResponse createResponse = userClient.create(user);
+        userAccessToken = createResponse.extract().path("accessToken");
 
-        userClient.create(user)
+        createResponse
                 .assertThat()
                 .statusCode(SC_OK)
                 .and()
-                .assertThat()
                 .body("success", is(true));
-        userAccessToken = userClient.login(UserCredentials.from(user))
-                .extract().path("accessToken");
 
     }
     @Test
     @DisplayName("Невозможно создать уже существующего юзера")
     public void SameUserCanNotBeCreatedTwice() {
         User user = UserGenerator.getRandom();
-        userClient.create(user)
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
                 .assertThat()
                 .body("success", is(true));
-        userClient.create(user)
+        userClient.create(user) //чтобы произошел новый вызов
                 .assertThat()
                 .body("success", is(false));
-        userAccessToken = userClient.login(UserCredentials.from(user))
-                .extract().path("accessToken");
+        userAccessToken = createResponse.extract().path("accessToken");
     }
     @Test
     @DisplayName("Невозможно создать юзера без email")

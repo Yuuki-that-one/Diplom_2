@@ -5,6 +5,7 @@ import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.response.ValidatableResponse;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -48,11 +49,11 @@ public class TestUserEdit {
     @DisplayName("Получение данных пользователя с авторизацией")
     public void CanReceiveUserInfoWithAuth() {
         User user = UserGenerator.getRandom();
-        userClient.create(user)
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
                 .assertThat()
                 .body("success", is(true));
-        userAccessToken = userClient.login(UserCredentials.from(user))
-                .extract().path("accessToken");
+        userAccessToken = createResponse.extract().path("accessToken");
         userClient.getUserInfo(userAccessToken)
                 .assertThat()
                 .statusCode(SC_OK)
@@ -67,11 +68,11 @@ public class TestUserEdit {
     @DisplayName("Неудачное получение данных пользователя без авторизации")
     public void CanNotReceiveUserInfoWithoutAuth() {
         User user = UserGenerator.getRandom();
-        userClient.create(user)
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
                 .assertThat()
                 .body("success", is(true));
-        userAccessToken = userClient.login(UserCredentials.from(user))
-                .extract().path("accessToken");
+        userAccessToken = createResponse.extract().path("accessToken");
         userClient.getUserInfoWithoutAuth()
                 .assertThat()
                 .statusCode(SC_UNAUTHORIZED);
@@ -81,11 +82,11 @@ public class TestUserEdit {
     @DisplayName("Редактирование данных пользователя с авторизацией")
     public void CanEditUserInfoWithAuth() {
         User user = UserGenerator.getRandom();
-        userClient.create(user)
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
                 .assertThat()
                 .body("success", is(true));
-        userAccessToken = userClient.login(UserCredentials.from(user))
-                .extract().path("accessToken");
+        userAccessToken = createResponse.extract().path("accessToken");
         String newEmail = RandomStringUtils.randomAlphabetic(10) + "@yandex.ru";
         String newPassword = RandomStringUtils.randomAlphabetic(10);
         String newName = RandomStringUtils.randomAlphabetic(10);
@@ -113,11 +114,11 @@ public class TestUserEdit {
     @DisplayName("Редактирование данных пользователя без авторизации")
     public void CanNotEditUserInfoWithoutAuth() {
         User user = UserGenerator.getRandom();
-        userClient.create(user)
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
                 .assertThat()
                 .body("success", is(true));
-        userAccessToken = userClient.login(UserCredentials.from(user))
-                .extract().path("accessToken");
+        userAccessToken = createResponse.extract().path("accessToken");
         String newEmail = RandomStringUtils.randomAlphabetic(10) + "@yandex.ru";
         String newPassword = RandomStringUtils.randomAlphabetic(10);
         String newName = RandomStringUtils.randomAlphabetic(10);

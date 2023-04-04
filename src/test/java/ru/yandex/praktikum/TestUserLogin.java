@@ -5,6 +5,7 @@ import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.response.ValidatableResponse;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -48,28 +49,26 @@ public class TestUserLogin {
     @DisplayName("Логин под уже существующим юзером")
     public void UserCanBeLoggedInWithValidData() {
         User user = UserGenerator.getRandom();
-
-        userClient.create(user)
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
                 .assertThat()
                 .body("success", is(true));
         userClient.login(UserCredentials.from(user))
                 .assertThat()
                 .statusCode(SC_OK);
 
-        userAccessToken = userClient.login(UserCredentials.from(user))
-                .extract().path("accessToken");
+        userAccessToken = createResponse.extract().path("accessToken");
 
     }
     @Test
     @DisplayName("Невозможность логина с неверным паролем")
     public void UserCanNotBeLoggedInWithWrongPassword() {
         User user = UserGenerator.getRandom();
-
-        userClient.create(user)
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
                 .assertThat()
                 .body("success", is(true));
-        userAccessToken = userClient.login(UserCredentials.from(user))
-                .extract().path("accessToken");
+        userAccessToken = createResponse.extract().path("accessToken");
 
         user.setPassword(RandomStringUtils.randomAlphabetic(10));
 
@@ -84,12 +83,11 @@ public class TestUserLogin {
     @DisplayName("Невозможность логина с неверным email")
     public void UserCanNotBeLoggedInWithWrongEmail() {
         User user = UserGenerator.getRandom();
-
-        userClient.create(user)
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
                 .assertThat()
                 .body("success", is(true));
-        userAccessToken = userClient.login(UserCredentials.from(user))
-                .extract().path("accessToken");
+        userAccessToken = createResponse.extract().path("accessToken");
 
         user.setEmail(RandomStringUtils.randomAlphabetic(10) + "@yandex.ru");
 
