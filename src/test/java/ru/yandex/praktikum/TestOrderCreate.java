@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ru.yandex.praktikum.client.IngredientsClient;
 import ru.yandex.praktikum.client.OrderClient;
 import ru.yandex.praktikum.client.UserClient;
 import ru.yandex.praktikum.model.*;
@@ -25,7 +26,7 @@ public class TestOrderCreate {
     private UserClient userClient;
     private OrderClient orderClient;
     private String userAccessToken;
-    private Ingredients ingredients;
+    private IngredientsClient ingredientsClient;
 
 
     @BeforeClass
@@ -41,7 +42,7 @@ public class TestOrderCreate {
         userClient = new UserClient();
         userAccessToken = null;
         orderClient = new OrderClient();
-        ingredients = new Ingredients();
+        ingredientsClient = new IngredientsClient();
     }
     @After
     public void cleanUp(){
@@ -60,7 +61,7 @@ public class TestOrderCreate {
         userAccessToken = createResponse.extract().path("accessToken");
 
         String json = "{\n" +
-                "    \"ingredients\": [\"" + ingredients.getRandomIngredientHash() + "\", \"" + ingredients.getRandomIngredientHash() + "\"]\n" +
+                "    \"ingredients\": [\"" + ingredientsClient.getRandomIngredientHash() + "\", \"" + ingredientsClient.getRandomIngredientHash() + "\"]\n" +
                 "}";
 
         orderClient.createOrder(userAccessToken, json)
@@ -125,7 +126,7 @@ public class TestOrderCreate {
     @DisplayName("Заказ создан с 2 ингридиентами, без авторизации")
     public void CanCreateOrderWithIngredientsWithoutAuth() {
         String json = "{\n" +
-                "    \"ingredients\": [\"" + ingredients.getRandomIngredientHash() + "\", \"" + ingredients.getRandomIngredientHash() + "\"]\n" +
+                "    \"ingredients\": [\"" + ingredientsClient.getRandomIngredientHash() + "\", \"" + ingredientsClient.getRandomIngredientHash() + "\"]\n" +
                 "}";
 
         orderClient.createOrderWithoutAuth(json)

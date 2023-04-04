@@ -1,8 +1,11 @@
 package ru.yandex.praktikum.client;
 
 import io.qameta.allure.Step;
+import ru.yandex.praktikum.model.Data;
 import ru.yandex.praktikum.model.Ingredients;
 
+
+import java.util.List;
 
 import static io.restassured.RestAssured.given;
 
@@ -15,5 +18,11 @@ public class IngredientsClient extends StellarRestClient {
                 .get(INGREDIENTS_URI)
                 .body().as(Ingredients.class);
     }
-
+    @Step("Get Random Ingredient Hash")
+    public String getRandomIngredientHash(){
+        Ingredients response = IngredientsClient.getIngredients();  //Получаем актуальные хеши ингридиентов
+        List<Data> CurrentData = response.getData();
+        int randomIngredient = (int) (Math.random()*CurrentData.size());
+        return List.of(CurrentData.get(randomIngredient).get_id()).toString().replace("[", "").replace("]", "");
+    }
 }
