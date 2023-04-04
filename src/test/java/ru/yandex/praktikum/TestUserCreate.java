@@ -14,7 +14,7 @@ import ru.yandex.praktikum.client.UserClient;
 import ru.yandex.praktikum.model.User;
 import ru.yandex.praktikum.model.UserGenerator;
 
-import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.CoreMatchers.is;
 
 public class TestUserCreate {
@@ -53,7 +53,11 @@ public class TestUserCreate {
                 .assertThat()
                 .statusCode(SC_OK)
                 .and()
-                .body("success", is(true));
+                .body("success", is(true))
+                .and()
+                .body("user.email", is(user.getEmail()))
+                .and()
+                .body("user.name", is(user.getName()));
 
     }
     @Test
@@ -64,10 +68,17 @@ public class TestUserCreate {
         createResponse
                 .assertThat()
                 .body("success", is(true));
+        userAccessToken = createResponse.extract().path("accessToken");
         userClient.create(user) //чтобы произошел новый вызов
                 .assertThat()
-                .body("success", is(false));
-        userAccessToken = createResponse.extract().path("accessToken");
+                .statusCode(SC_FORBIDDEN)
+                .and()
+                .assertThat()
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("User already exists"));
+
     }
     @Test
     @DisplayName("Невозможно создать юзера без email")
@@ -76,7 +87,13 @@ public class TestUserCreate {
         user.setEmail(null);
         userClient.create(user)
                 .assertThat()
-                .body("success", is(false));
+                .statusCode(SC_FORBIDDEN)
+                .and()
+                .assertThat()
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("Email, password and name are required fields"));
     }
     @Test
     @DisplayName("Невозможно создать юзера без пароля")
@@ -85,7 +102,13 @@ public class TestUserCreate {
         user.setPassword(null);
         userClient.create(user)
                 .assertThat()
-                .body("success", is(false));
+                .statusCode(SC_FORBIDDEN)
+                .and()
+                .assertThat()
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("Email, password and name are required fields"));
     }
     @Test
     @DisplayName("Невозможно создать юзера без имени")
@@ -94,7 +117,13 @@ public class TestUserCreate {
         user.setName(null);
         userClient.create(user)
                 .assertThat()
-                .body("success", is(false));
+                .statusCode(SC_FORBIDDEN)
+                .and()
+                .assertThat()
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("Email, password and name are required fields"));
     }
 
 

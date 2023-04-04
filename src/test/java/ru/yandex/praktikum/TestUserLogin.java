@@ -1,5 +1,6 @@
 package ru.yandex.praktikum;
 
+import com.github.javafaker.Faker;
 import io.qameta.allure.junit4.DisplayName;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
@@ -16,14 +17,19 @@ import ru.yandex.praktikum.model.User;
 import ru.yandex.praktikum.model.UserCredentials;
 import ru.yandex.praktikum.model.UserGenerator;
 
+import java.util.Locale;
+
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class TestUserLogin {
 
     private UserClient userClient;
     private String userAccessToken;
+    static Faker faker = new Faker(new Locale("en"));
+
 
     @BeforeClass
     public static void globalSetUp() {
@@ -53,11 +59,28 @@ public class TestUserLogin {
         createResponse
                 .assertThat()
                 .body("success", is(true));
+        userAccessToken = createResponse.extract().path("accessToken");
+        System.out.println(userAccessToken);
         userClient.login(UserCredentials.from(user))
                 .assertThat()
-                .statusCode(SC_OK);
+                .statusCode(SC_OK)
+                .and()
+                .assertThat()
+                .body("success", is(true))
+                .and()
+                .assertThat()
+                .body("accessToken", is(notNullValue())) //после логина токен изменяется
+                .and()
+                .assertThat()
+                .body("refreshToken", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("user.email", is(user.getEmail().toLowerCase()))
+                .and()
+                .assertThat()
+                .body("user.name", is(user.getName()));
 
-        userAccessToken = createResponse.extract().path("accessToken");
+
 
     }
     @Test
@@ -77,7 +100,10 @@ public class TestUserLogin {
                 .statusCode(SC_UNAUTHORIZED)
                 .and()
                 .assertThat()
-                .body("success", is(false));
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("email or password are incorrect"));
     }
     @Test
     @DisplayName("Невозможность логина с неверным email")
@@ -89,14 +115,17 @@ public class TestUserLogin {
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
 
-        user.setEmail(RandomStringUtils.randomAlphabetic(10) + "@yandex.ru");
+        user.setEmail(faker.internet().safeEmailAddress());
 
         userClient.login(UserCredentials.from(user))
                 .assertThat()
                 .statusCode(SC_UNAUTHORIZED)
                 .and()
                 .assertThat()
-                .body("success", is(false));
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("email or password are incorrect"));
 
 
 

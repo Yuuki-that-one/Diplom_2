@@ -8,7 +8,7 @@ import static io.restassured.RestAssured.given;
 public class OrderClient extends StellarRestClient {
     private static final String ORDER_URI = BASE_URI + "api/orders";
 
-    @Step("Create order")
+    @Step("Create order with Authorization")
     public ValidatableResponse createOrder(String accessToken, String json){
         return given()
                 .spec(getBaseReqSpec())
@@ -19,7 +19,7 @@ public class OrderClient extends StellarRestClient {
                 .post(ORDER_URI)
                 .then();
     }
-    @Step("Create order")
+    @Step("Create order without Authorization")
     public ValidatableResponse createOrderWithoutAuth(String json){
         return given()
                 .spec(getBaseReqSpec())
@@ -27,6 +27,23 @@ public class OrderClient extends StellarRestClient {
                 .body(json)
                 .when()
                 .post(ORDER_URI)
+                .then();
+    }
+    @Step("Get order with Authorization")
+    public ValidatableResponse getOrderList(String accessToken){
+        return given()
+                .spec(getBaseReqSpec())
+                .header("Authorization", accessToken)
+                .when()
+                .get(ORDER_URI)
+                .then();
+    }
+    @Step("Get order without Authorization")
+    public ValidatableResponse getOrderListWithoutAuth(){
+        return given()
+                .spec(getBaseReqSpec())
+                .when()
+                .get(ORDER_URI)
                 .then();
     }
 }

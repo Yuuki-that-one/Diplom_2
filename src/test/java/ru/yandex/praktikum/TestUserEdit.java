@@ -1,5 +1,6 @@
 package ru.yandex.praktikum;
 
+import com.github.javafaker.Faker;
 import io.qameta.allure.junit4.DisplayName;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
@@ -16,6 +17,8 @@ import ru.yandex.praktikum.model.User;
 import ru.yandex.praktikum.model.UserCredentials;
 import ru.yandex.praktikum.model.UserGenerator;
 
+import java.util.Locale;
+
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.hamcrest.CoreMatchers.is;
@@ -24,6 +27,7 @@ public class TestUserEdit {
 
     private UserClient userClient;
     private String userAccessToken;
+    static Faker faker = new Faker(new Locale("en"));
 
     @BeforeClass
     public static void globalSetUp() {
@@ -59,6 +63,9 @@ public class TestUserEdit {
                 .statusCode(SC_OK)
                 .and()
                 .assertThat()
+                .body("success", is(true))
+                .and()
+                .assertThat()
                 .body("user.email", is(user.getEmail().toLowerCase()))
                 .and()
                 .assertThat()
@@ -75,7 +82,10 @@ public class TestUserEdit {
         userAccessToken = createResponse.extract().path("accessToken");
         userClient.getUserInfoWithoutAuth()
                 .assertThat()
-                .statusCode(SC_UNAUTHORIZED);
+                .statusCode(SC_UNAUTHORIZED)
+                .and()
+                .assertThat()
+                .body("message", is("You should be authorised"));
 
     }
     @Test
@@ -87,7 +97,7 @@ public class TestUserEdit {
                 .assertThat()
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
-        String newEmail = RandomStringUtils.randomAlphabetic(10) + "@yandex.ru";
+        String newEmail = faker.internet().safeEmailAddress();
         String newPassword = RandomStringUtils.randomAlphabetic(10);
         String newName = RandomStringUtils.randomAlphabetic(10);
         String json = "{\n" +
@@ -100,14 +110,14 @@ public class TestUserEdit {
                 .statusCode(SC_OK)
                 .and()
                 .assertThat()
+                .body("success", is(true))
+                .and()
+                .assertThat()
                 .body("user.email", is(newEmail.toLowerCase()))
                 .and()
                 .assertThat()
                 .body("user.name", is(newName));
         userClient.login(UserCredentials.fromDirect(newEmail, newPassword)) //проверяем, что новый логин и пароль подходят
-                .assertThat()
-                .statusCode(SC_OK)
-                .and()
                 .assertThat()
                 .body("success", is(true));
     }
@@ -120,7 +130,7 @@ public class TestUserEdit {
                 .assertThat()
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
-        String newEmail = RandomStringUtils.randomAlphabetic(10) + "@yandex.ru";
+        String newEmail = faker.internet().safeEmailAddress();
         String newPassword = RandomStringUtils.randomAlphabetic(10);
         String newName = RandomStringUtils.randomAlphabetic(10);
         String json = "{\n" +
@@ -132,6 +142,9 @@ public class TestUserEdit {
                 .statusCode(SC_UNAUTHORIZED)
                 .and()
                 .assertThat()
-                .body("success", is(false));
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("You should be authorised"));
     }
 }

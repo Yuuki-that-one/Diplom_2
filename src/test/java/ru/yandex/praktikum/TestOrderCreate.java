@@ -59,9 +59,11 @@ public class TestOrderCreate {
                 .assertThat()
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
+        String randomIngredientHash1 = ingredientsClient.getRandomIngredientHash();
+        String randomIngredientHash2 = ingredientsClient.getRandomIngredientHash();
 
         String json = "{\n" +
-                "    \"ingredients\": [\"" + ingredientsClient.getRandomIngredientHash() + "\", \"" + ingredientsClient.getRandomIngredientHash() + "\"]\n" +
+                "    \"ingredients\": [\"" + randomIngredientHash1 + "\", \"" + randomIngredientHash2 + "\"]\n" +
                 "}";
 
         orderClient.createOrder(userAccessToken, json)
@@ -72,10 +74,80 @@ public class TestOrderCreate {
                 .body("success", is(true))
                 .and()
                 .assertThat()
+                .body("name", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0]._id", is(randomIngredientHash1))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].type", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].proteins", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].fat", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].carbohydrates", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].calories", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].price", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].image", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].image_mobile", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].image_large", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[0].__v", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.ingredients[1]._id", is(randomIngredientHash2))
+                .and()
+                .assertThat()
                 .body("order.number", is(notNullValue()))
                 .and()
                 .assertThat()
-                .body("order.owner.email", is(user.getEmail().toLowerCase()));
+                .body("order._id", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.owner.name", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.owner.email", is(user.getEmail().toLowerCase()))
+                .and()
+                .assertThat()
+                .body("order.owner.createdAt", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.owner.updatedAt", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.status", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.name", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.createdAt", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.updatedAt", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.number", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.price", is(notNullValue()));
+
 
     }
     @Test
@@ -140,18 +212,43 @@ public class TestOrderCreate {
                 .body("order.number", is(notNullValue()));
     }
     @Test
-    @DisplayName("Заказ не создан c ингридиентами с неверным хэшем (без авторизации)")
-    public void CanNotCreateOrderWithWrongHashIngredients() {
-        //Если проверять вариант заказа верный хэш + неверный хэш, то заказ успешно создается, это баг тренажера, уже зарепортил.
-        //Исправить не успеют, поэтому пришлось оставить проверку только варианта с двумя неверными хэшами.
-        String randomIngredient1Id = RandomStringUtils.randomNumeric(24);
-        String randomIngredient2Id = RandomStringUtils.randomNumeric(24);
+    @DisplayName("(Падение ожидаемо)Заказ не создан c двумя ингридиентами, один из них с неверным хэшем (без авторизации)")
+    public void CanNotCreateOrderWithWrongAndRightHashIngredients() {
+        //Этот тест ожидаемо падает. Если проверять вариант заказа верный хэш + неверный хэш, то заказ успешно создается, хотя не должен, как следует из текста ожидаемой ошибки.
+
+        String randomIngredientId = RandomStringUtils.randomNumeric(24);
 
         String json = "{\n" +
-                "    \"ingredients\": [\"" + randomIngredient1Id + "\", \"" + randomIngredient2Id + "\"]\n" +
+                "    \"ingredients\": [\"" + randomIngredientId + "\", \"" +  ingredientsClient.getRandomIngredientHash() + "\"]\n" +
                 "}";
 
         orderClient.createOrderWithoutAuth(json)
+                .assertThat()
+                .statusCode(SC_BAD_REQUEST)
+                .and()
+                .assertThat()
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("One or more ids provided are incorrect"));
+    }
+    @Test
+    @DisplayName("Заказ не создан c одним ингридиентом с неверным хэшем (с авторизацией)")
+    public void CanNotCreateOrderWithWrongHashIngredient() {
+        User user = UserGenerator.getRandom();
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
+                .assertThat()
+                .body("success", is(true));
+        userAccessToken = createResponse.extract().path("accessToken");
+
+        String randomIngredientId = RandomStringUtils.randomNumeric(24);
+
+        String json = "{\n" +
+                "    \"ingredients\": [\"" + randomIngredientId + "\"]\n" +
+                "}";
+
+        orderClient.createOrder(userAccessToken,json)
                 .assertThat()
                 .statusCode(SC_BAD_REQUEST)
                 .and()
