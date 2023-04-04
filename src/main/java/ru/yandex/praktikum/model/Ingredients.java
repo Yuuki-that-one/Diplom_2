@@ -1,5 +1,8 @@
 package ru.yandex.praktikum.model;
 
+import io.qameta.allure.Step;
+import ru.yandex.praktikum.client.IngredientsClient;
+
 import java.util.List;
 
 public class Ingredients {
@@ -22,5 +25,11 @@ public class Ingredients {
         this.success = success;
     }
 
-
+    @Step("Get Random Ingredient")
+    public String getRandomIngredientHash(){
+        Ingredients response = IngredientsClient.getIngredients();  //Получаем актуальные хеши ингридиентов
+        List<Data> CurrentData = response.getData();
+        int randomIngredient = (int) (Math.random()*CurrentData.size());
+        return List.of(CurrentData.get(randomIngredient).get_id()).toString().replace("[", "").replace("]", "");
+    }
 }

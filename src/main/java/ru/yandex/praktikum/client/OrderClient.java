@@ -19,4 +19,14 @@ public class OrderClient extends StellarRestClient {
                 .post(ORDER_URI)
                 .then();
     }
+    @Step("Create order")
+    public ValidatableResponse createOrderWithoutAuth(String json){
+        return given()
+                .spec(getBaseReqSpec())
+                .and()
+                .body(json)
+                .when()
+                .post(ORDER_URI)
+                .then();
+    }
 }

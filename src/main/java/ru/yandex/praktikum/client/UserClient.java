@@ -65,7 +65,7 @@ public class UserClient extends StellarRestClient{
                 .patch(USER_URI + "user/")
                 .then();
     }
-    @Step("Edit user info from server")
+    @Step("Edit user info from server without Authorization")
     public ValidatableResponse editUserInfoWithoutAuth(String json) {
         return given()
                 .spec(getBaseReqSpec())

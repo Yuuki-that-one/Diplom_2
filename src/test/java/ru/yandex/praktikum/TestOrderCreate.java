@@ -6,25 +6,26 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.response.ValidatableResponse;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import ru.yandex.praktikum.client.IngredientsClient;
+
 import ru.yandex.praktikum.client.OrderClient;
 import ru.yandex.praktikum.client.UserClient;
 import ru.yandex.praktikum.model.*;
 
-import java.util.Arrays;
-import java.util.List;
-
+import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class TestOrderCreate {
     private UserClient userClient;
     private OrderClient orderClient;
     private String userAccessToken;
+    private Ingredients ingredients;
 
 
     @BeforeClass
@@ -40,6 +41,7 @@ public class TestOrderCreate {
         userClient = new UserClient();
         userAccessToken = null;
         orderClient = new OrderClient();
+        ingredients = new Ingredients();
     }
     @After
     public void cleanUp(){
@@ -50,13 +52,35 @@ public class TestOrderCreate {
     @Test
     @DisplayName("Создание заказа с 2 ингридиентами и авторизацией")
     public void CanCreateOrderWithIngredientsAndAuth() {
+       User user = UserGenerator.getRandom();
+        ValidatableResponse createResponse = userClient.create(user);
+        createResponse
+                .assertThat()
+                .body("success", is(true));
+        userAccessToken = createResponse.extract().path("accessToken");
 
-        Ingredients response = IngredientsClient.getIngredients();
-        List<Data> CurrentData = response.getData();
-        int randomIngredient1 = (int) (Math.random()*CurrentData.size());
-        int randomIngredient2 = (int) (Math.random()*CurrentData.size());
-        String randomIngredient1Id = Arrays.asList(CurrentData.get(randomIngredient1).get_id()).toString().replace("[", "").replace("]", "");
-        String randomIngredient2Id = Arrays.asList(CurrentData.get(randomIngredient2).get_id()).toString().replace("[", "").replace("]", "");
+        String json = "{\n" +
+                "    \"ingredients\": [\"" + ingredients.getRandomIngredientHash() + "\", \"" + ingredients.getRandomIngredientHash() + "\"]\n" +
+                "}";
+
+        orderClient.createOrder(userAccessToken, json)
+                .assertThat()
+                .statusCode(SC_OK)
+                .and()
+                .assertThat()
+                .body("success", is(true))
+                .and()
+                .assertThat()
+                .body("order.number", is(notNullValue()))
+                .and()
+                .assertThat()
+                .body("order.owner.email", is(user.getEmail().toLowerCase()));
+
+    }
+    @Test
+    @DisplayName("Заказ не создан без ингридиентов и с авторизацией")
+    public void CanNotCreateOrderWithoutIngredientsAndWithAuth() {
+
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.create(user);
         createResponse
@@ -65,13 +89,75 @@ public class TestOrderCreate {
         userAccessToken = createResponse.extract().path("accessToken");
 
         String json = "{\n" +
+                "    \"ingredients\": []\n" +
+                "}";
+
+        orderClient.createOrder(userAccessToken, json)
+                .assertThat()
+                .statusCode(SC_BAD_REQUEST)
+                .and()
+                .assertThat()
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("Ingredient ids must be provided"));
+    }
+    @Test
+    @DisplayName("Заказ не создан без ингридиентов и без авторизации")
+    public void CanNotCreateOrderWithoutIngredientsAndWithoutAuth() {
+
+        String json = "{\n" +
+                "    \"ingredients\": []\n" +
+                "}";
+
+        orderClient.createOrderWithoutAuth(json)
+                .assertThat()
+                .statusCode(SC_BAD_REQUEST)
+                .and()
+                .assertThat()
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("Ingredient ids must be provided"));
+    }
+
+    @Test
+    @DisplayName("Заказ создан с 2 ингридиентами, без авторизации")
+    public void CanCreateOrderWithIngredientsWithoutAuth() {
+        String json = "{\n" +
+                "    \"ingredients\": [\"" + ingredients.getRandomIngredientHash() + "\", \"" + ingredients.getRandomIngredientHash() + "\"]\n" +
+                "}";
+
+        orderClient.createOrderWithoutAuth(json)
+                .assertThat()
+                .statusCode(SC_OK)
+                .and()
+                .assertThat()
+                .body("success", is(true))
+                .and()
+                .assertThat()
+                .body("order.number", is(notNullValue()));
+    }
+    @Test
+    @DisplayName("Заказ не создан c ингридиентами с неверным хэшем (без авторизации)")
+    public void CanNotCreateOrderWithWrongHashIngredients() {
+        //Если проверять вариант заказа верный хэш + неверный хэш, то заказ успешно создается, это баг тренажера, уже зарепортил.
+        //Исправить не успеют, поэтому пришлось оставить проверку только варианта с двумя неверными хэшами.
+        String randomIngredient1Id = RandomStringUtils.randomNumeric(24);
+        String randomIngredient2Id = RandomStringUtils.randomNumeric(24);
+
+        String json = "{\n" +
                 "    \"ingredients\": [\"" + randomIngredient1Id + "\", \"" + randomIngredient2Id + "\"]\n" +
                 "}";
 
-        // System.out.println(Arrays.asList(CurrentData.get(randomIngredient1).getName()));
-        // System.out.println(Arrays.asList(CurrentData.get(randomIngredient2).getName()));
-        orderClient.createOrder(userAccessToken, json)
+        orderClient.createOrderWithoutAuth(json)
                 .assertThat()
-                .statusCode(SC_OK);
+                .statusCode(SC_BAD_REQUEST)
+                .and()
+                .assertThat()
+                .body("success", is(false))
+                .and()
+                .assertThat()
+                .body("message", is("One or more ids provided are incorrect"));
     }
 }

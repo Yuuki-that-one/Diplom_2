@@ -3,6 +3,7 @@ package ru.yandex.praktikum.client;
 import io.qameta.allure.Step;
 import ru.yandex.praktikum.model.Ingredients;
 
+
 import static io.restassured.RestAssured.given;
 
 public class IngredientsClient extends StellarRestClient {
@@ -14,4 +15,5 @@ public class IngredientsClient extends StellarRestClient {
                 .get(INGREDIENTS_URI)
                 .body().as(Ingredients.class);
     }
+
 }
