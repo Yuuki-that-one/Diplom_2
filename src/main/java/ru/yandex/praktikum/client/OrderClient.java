@@ -16,7 +16,7 @@ public class OrderClient extends StellarRestClient {
                 .and()
                 .body(json)
                 .when()
-                .get(ORDER_URI)
+                .post(ORDER_URI)
                 .then();
     }
 }
