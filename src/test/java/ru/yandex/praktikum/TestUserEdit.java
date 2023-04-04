@@ -96,6 +96,7 @@ public class TestUserEdit {
                 "    \"name\": \"" + newName + "\"\n" +
                 "}";
         userClient.editUserInfo(userAccessToken, json)  //проверяем, что после редактирования возвращаются новые email и имя (пароль тут не приходит)
+                .assertThat()
                 .statusCode(SC_OK)
                 .and()
                 .assertThat()
