@@ -16,6 +16,7 @@ import ru.yandex.praktikum.model.UserGenerator;
 
 import static org.apache.http.HttpStatus.*;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class TestUserCreate {
 
@@ -57,7 +58,11 @@ public class TestUserCreate {
                 .and()
                 .body("user.email", is(user.getEmail()))
                 .and()
-                .body("user.name", is(user.getName()));
+                .body("user.name", is(user.getName()))
+                .and()
+                .body("accessToken", is(notNullValue()))
+                .and()
+                .body("refreshToken", is(notNullValue()));
 
     }
     @Test
