@@ -2,29 +2,29 @@ package ru.yandex.praktikum.client;
 
 import io.qameta.allure.Step;
 import io.restassured.response.ValidatableResponse;
-
+import ru.yandex.praktikum.model.Order;
 import static io.restassured.RestAssured.given;
 
 public class OrderClient extends StellarRestClient {
     private static final String ORDER_URI = BASE_URI + "api/orders";
 
     @Step("Create order with Authorization")
-    public ValidatableResponse createOrder(String accessToken, String json){
+    public ValidatableResponse createOrder(String accessToken, Order order){
         return given()
                 .spec(getBaseReqSpec())
                 .header("Authorization", accessToken)
                 .and()
-                .body(json)
+                .body(order)
                 .when()
                 .post(ORDER_URI)
                 .then();
     }
     @Step("Create order without Authorization")
-    public ValidatableResponse createOrderWithoutAuth(String json){
+    public ValidatableResponse createOrderWithoutAuth(Order order){
         return given()
                 .spec(getBaseReqSpec())
                 .and()
-                .body(json)
+                .body(order)
                 .when()
                 .post(ORDER_URI)
                 .then();

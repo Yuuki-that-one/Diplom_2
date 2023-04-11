@@ -17,6 +17,8 @@ import ru.yandex.praktikum.client.OrderClient;
 import ru.yandex.praktikum.client.UserClient;
 import ru.yandex.praktikum.model.*;
 
+import java.util.List;
+
 import static org.apache.http.HttpStatus.SC_BAD_REQUEST;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.CoreMatchers.is;
@@ -62,11 +64,9 @@ public class TestOrderCreate {
         String randomIngredientHash1 = ingredientsClient.getRandomIngredientHash();
         String randomIngredientHash2 = ingredientsClient.getRandomIngredientHash();
 
-        String json = "{\n" +
-                "    \"ingredients\": [\"" + randomIngredientHash1 + "\", \"" + randomIngredientHash2 + "\"]\n" +
-                "}";
+        Order order = new Order(List.of(randomIngredientHash1,randomIngredientHash2));
 
-        orderClient.createOrder(userAccessToken, json)
+        orderClient.createOrder(userAccessToken, order)
                 .assertThat()
                 .statusCode(SC_OK)
                 .and()
@@ -161,11 +161,9 @@ public class TestOrderCreate {
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
 
-        String json = "{\n" +
-                "    \"ingredients\": []\n" +
-                "}";
+        Order order = new Order(List.of());
 
-        orderClient.createOrder(userAccessToken, json)
+        orderClient.createOrder(userAccessToken, order)
                 .assertThat()
                 .statusCode(SC_BAD_REQUEST)
                 .and()
@@ -179,11 +177,9 @@ public class TestOrderCreate {
     @DisplayName("Заказ не создан без ингридиентов и без авторизации")
     public void canNotCreateOrderWithoutIngredientsAndWithoutAuth() {
 
-        String json = "{\n" +
-                "    \"ingredients\": []\n" +
-                "}";
+        Order order = new Order(List.of());
 
-        orderClient.createOrderWithoutAuth(json)
+        orderClient.createOrderWithoutAuth(order)
                 .assertThat()
                 .statusCode(SC_BAD_REQUEST)
                 .and()
@@ -197,11 +193,10 @@ public class TestOrderCreate {
     @Test
     @DisplayName("Заказ создан с 2 ингридиентами, без авторизации")
     public void canCreateOrderWithIngredientsWithoutAuth() {
-        String json = "{\n" +
-                "    \"ingredients\": [\"" + ingredientsClient.getRandomIngredientHash() + "\", \"" + ingredientsClient.getRandomIngredientHash() + "\"]\n" +
-                "}";
 
-        orderClient.createOrderWithoutAuth(json)
+        Order order = new Order(List.of(ingredientsClient.getRandomIngredientHash(),ingredientsClient.getRandomIngredientHash()));
+
+        orderClient.createOrderWithoutAuth(order)
                 .assertThat()
                 .statusCode(SC_OK)
                 .and()
@@ -216,13 +211,9 @@ public class TestOrderCreate {
     public void canNotCreateOrderWithWrongAndRightHashIngredients() {
         //Этот тест ожидаемо падает. Если проверять вариант заказа верный хэш + неверный хэш, то заказ успешно создается, хотя не должен, как следует из текста ожидаемой ошибки.
 
-        String randomIngredientId = RandomStringUtils.randomNumeric(24);
+        Order order = new Order(List.of(RandomStringUtils.randomNumeric(24),ingredientsClient.getRandomIngredientHash()));
 
-        String json = "{\n" +
-                "    \"ingredients\": [\"" + randomIngredientId + "\", \"" +  ingredientsClient.getRandomIngredientHash() + "\"]\n" +
-                "}";
-
-        orderClient.createOrderWithoutAuth(json)
+        orderClient.createOrderWithoutAuth(order)
                 .assertThat()
                 .statusCode(SC_BAD_REQUEST)
                 .and()
@@ -242,13 +233,9 @@ public class TestOrderCreate {
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
 
-        String randomIngredientId = RandomStringUtils.randomNumeric(24);
+        Order order = new Order(List.of(RandomStringUtils.randomNumeric(24)));
 
-        String json = "{\n" +
-                "    \"ingredients\": [\"" + randomIngredientId + "\"]\n" +
-                "}";
-
-        orderClient.createOrder(userAccessToken,json)
+        orderClient.createOrder(userAccessToken,order)
                 .assertThat()
                 .statusCode(SC_BAD_REQUEST)
                 .and()

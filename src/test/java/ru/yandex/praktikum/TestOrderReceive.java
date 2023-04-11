@@ -13,8 +13,11 @@ import org.junit.Test;
 import ru.yandex.praktikum.client.IngredientsClient;
 import ru.yandex.praktikum.client.OrderClient;
 import ru.yandex.praktikum.client.UserClient;
+import ru.yandex.praktikum.model.Order;
 import ru.yandex.praktikum.model.User;
 import ru.yandex.praktikum.model.UserGenerator;
+
+import java.util.List;
 
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
@@ -60,14 +63,12 @@ public class TestOrderReceive {
         userAccessToken = createResponse.extract().path("accessToken");
         String testIngredientHash = ingredientsClient.getRandomIngredientHash();
 
-        String json = "{\n" +
-                "    \"ingredients\": [\"" + testIngredientHash + "\"]\n" +
-                "}";
+        Order order = new Order(List.of(testIngredientHash));
 
-        orderClient.createOrder(userAccessToken, json) //создаем первый заказ
+        orderClient.createOrder(userAccessToken, order) //создаем первый заказ
                 .assertThat()
                 .body("success", is(true));
-        orderClient.createOrder(userAccessToken, json) //создаем второй заказ
+        orderClient.createOrder(userAccessToken, order) //создаем второй заказ
                 .assertThat()
                 .body("success", is(true));
         orderClient.getOrderList(userAccessToken)
@@ -111,11 +112,9 @@ public class TestOrderReceive {
     @DisplayName("Ошибка получения списка заказов без авторизации")
     public void canReceiveOrderListWithoutAuth() {
 
-        String json = "{\n" +
-                "    \"ingredients\": [\"" + ingredientsClient.getRandomIngredientHash() + "\"]\n" +
-                "}";
+        Order order = new Order(List.of(ingredientsClient.getRandomIngredientHash()));
 
-        orderClient.createOrderWithoutAuth(json) //создаем первый заказ
+        orderClient.createOrderWithoutAuth(order) //создаем первый заказ
                 .assertThat()
                 .body("success", is(true));
         orderClient.getOrderListWithoutAuth()
@@ -139,11 +138,10 @@ public class TestOrderReceive {
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
 
-        String json = "{\n" +
-                "    \"ingredients\": [\"" + ingredientsClient.getRandomIngredientHash() + "\"]\n" +
-                "}";
+        Order order = new Order(List.of(ingredientsClient.getRandomIngredientHash()));
+
         for (int i = 0; i < 60; i++) {
-            orderClient.createOrder(userAccessToken, json); //создаем 60 заказов
+            orderClient.createOrder(userAccessToken, order); //создаем 60 заказов
         }
 
         orderClient.getOrderList(userAccessToken)
