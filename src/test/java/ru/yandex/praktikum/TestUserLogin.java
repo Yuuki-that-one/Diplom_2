@@ -55,7 +55,7 @@ public class TestUserLogin {
     @DisplayName("Логин под уже существующим юзером")
     public void UserCanBeLoggedInWithValidData() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));
@@ -87,7 +87,7 @@ public class TestUserLogin {
     @DisplayName("Невозможность логина с неверным паролем")
     public void UserCanNotBeLoggedInWithWrongPassword() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));
@@ -109,7 +109,7 @@ public class TestUserLogin {
     @DisplayName("Невозможность логина с неверным email")
     public void UserCanNotBeLoggedInWithWrongEmail() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));

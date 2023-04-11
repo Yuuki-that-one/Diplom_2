@@ -11,7 +11,7 @@ public class UserClient extends StellarRestClient{
     private static final String USER_URI = BASE_URI + "api/auth/";
 
     @Step("Create user {user}")
-    public ValidatableResponse create(User user) {
+    public ValidatableResponse createUser(User user) {
         return given()
                 .spec(getBaseReqSpec())
                 .body(user)

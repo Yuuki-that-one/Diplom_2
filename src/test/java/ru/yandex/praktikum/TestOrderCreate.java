@@ -54,7 +54,7 @@ public class TestOrderCreate {
     @DisplayName("Создание заказа с 2 ингридиентами и авторизацией")
     public void CanCreateOrderWithIngredientsAndAuth() {
        User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));
@@ -155,7 +155,7 @@ public class TestOrderCreate {
     public void CanNotCreateOrderWithoutIngredientsAndWithAuth() {
 
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));
@@ -236,7 +236,7 @@ public class TestOrderCreate {
     @DisplayName("Заказ не создан c одним ингридиентом с неверным хэшем (с авторизацией)")
     public void CanNotCreateOrderWithWrongHashIngredient() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));

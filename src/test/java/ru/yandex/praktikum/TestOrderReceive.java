@@ -53,7 +53,7 @@ public class TestOrderReceive {
     @DisplayName("Получение списка заказов с авторизацией")
     public void CanReceiveOrderListWithAuth() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));
@@ -133,7 +133,7 @@ public class TestOrderReceive {
     public void CanReceiveOrderList50Limit() {
         //Этот тест ожидаемо падает, ограничение на 50 заказов не работает
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));

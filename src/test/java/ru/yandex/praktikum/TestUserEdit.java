@@ -53,7 +53,7 @@ public class TestUserEdit {
     @DisplayName("Получение данных пользователя с авторизацией")
     public void CanReceiveUserInfoWithAuth() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));
@@ -75,7 +75,7 @@ public class TestUserEdit {
     @DisplayName("Неудачное получение данных пользователя без авторизации")
     public void CanNotReceiveUserInfoWithoutAuth() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));
@@ -92,7 +92,7 @@ public class TestUserEdit {
     @DisplayName("Редактирование данных пользователя с авторизацией")
     public void CanEditUserInfoWithAuth() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));
@@ -125,7 +125,7 @@ public class TestUserEdit {
     @DisplayName("Редактирование данных пользователя без авторизации")
     public void CanNotEditUserInfoWithoutAuth() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));

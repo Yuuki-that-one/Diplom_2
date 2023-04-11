@@ -47,7 +47,7 @@ public class TestUserCreate {
     @DisplayName("Создание юзера с валидными параметрами")
     public void UserCanBeCreatedWithValidData() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         userAccessToken = createResponse.extract().path("accessToken");
 
         createResponse
@@ -69,12 +69,12 @@ public class TestUserCreate {
     @DisplayName("Невозможно создать уже существующего юзера")
     public void SameUserCanNotBeCreatedTwice() {
         User user = UserGenerator.getRandom();
-        ValidatableResponse createResponse = userClient.create(user);
+        ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
                 .assertThat()
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
-        userClient.create(user) //чтобы произошел новый вызов
+        userClient.createUser(user) //чтобы произошел новый вызов
                 .assertThat()
                 .statusCode(SC_FORBIDDEN)
                 .and()
@@ -90,7 +90,7 @@ public class TestUserCreate {
     public void UserCanNotBeCreatedWithoutEmail() {
         User user = UserGenerator.getRandom();
         user.setEmail(null);
-        userClient.create(user)
+        userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_FORBIDDEN)
                 .and()
@@ -105,7 +105,7 @@ public class TestUserCreate {
     public void UserCanNotBeCreatedWithoutPassword() {
         User user = UserGenerator.getRandom();
         user.setPassword(null);
-        userClient.create(user)
+        userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_FORBIDDEN)
                 .and()
@@ -120,7 +120,7 @@ public class TestUserCreate {
     public void UserCanNotBeCreatedWithoutName() {
         User user = UserGenerator.getRandom();
         user.setName(null);
-        userClient.create(user)
+        userClient.createUser(user)
                 .assertThat()
                 .statusCode(SC_FORBIDDEN)
                 .and()
