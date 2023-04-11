@@ -45,7 +45,7 @@ public class TestUserCreate {
 
     @Test
     @DisplayName("Создание юзера с валидными параметрами")
-    public void UserCanBeCreatedWithValidData() {
+    public void userCanBeCreatedWithValidData() {
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
         userAccessToken = createResponse.extract().path("accessToken");
@@ -67,7 +67,7 @@ public class TestUserCreate {
     }
     @Test
     @DisplayName("Невозможно создать уже существующего юзера")
-    public void SameUserCanNotBeCreatedTwice() {
+    public void sameUserCanNotBeCreatedTwice() {
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
@@ -87,7 +87,7 @@ public class TestUserCreate {
     }
     @Test
     @DisplayName("Невозможно создать юзера без email")
-    public void UserCanNotBeCreatedWithoutEmail() {
+    public void userCanNotBeCreatedWithoutEmail() {
         User user = UserGenerator.getRandom();
         user.setEmail(null);
         userClient.createUser(user)
@@ -102,7 +102,7 @@ public class TestUserCreate {
     }
     @Test
     @DisplayName("Невозможно создать юзера без пароля")
-    public void UserCanNotBeCreatedWithoutPassword() {
+    public void userCanNotBeCreatedWithoutPassword() {
         User user = UserGenerator.getRandom();
         user.setPassword(null);
         userClient.createUser(user)
@@ -117,7 +117,7 @@ public class TestUserCreate {
     }
     @Test
     @DisplayName("Невозможно создать юзера без имени")
-    public void UserCanNotBeCreatedWithoutName() {
+    public void userCanNotBeCreatedWithoutName() {
         User user = UserGenerator.getRandom();
         user.setName(null);
         userClient.createUser(user)

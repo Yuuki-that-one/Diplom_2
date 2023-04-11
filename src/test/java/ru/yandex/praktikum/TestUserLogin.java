@@ -53,7 +53,7 @@ public class TestUserLogin {
 
     @Test
     @DisplayName("Логин под уже существующим юзером")
-    public void UserCanBeLoggedInWithValidData() {
+    public void userCanBeLoggedInWithValidData() {
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
@@ -85,7 +85,7 @@ public class TestUserLogin {
     }
     @Test
     @DisplayName("Невозможность логина с неверным паролем")
-    public void UserCanNotBeLoggedInWithWrongPassword() {
+    public void userCanNotBeLoggedInWithWrongPassword() {
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
@@ -107,7 +107,7 @@ public class TestUserLogin {
     }
     @Test
     @DisplayName("Невозможность логина с неверным email")
-    public void UserCanNotBeLoggedInWithWrongEmail() {
+    public void userCanNotBeLoggedInWithWrongEmail() {
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
         createResponse

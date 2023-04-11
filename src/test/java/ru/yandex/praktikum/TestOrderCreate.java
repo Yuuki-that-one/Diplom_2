@@ -52,7 +52,7 @@ public class TestOrderCreate {
     }
     @Test
     @DisplayName("Создание заказа с 2 ингридиентами и авторизацией")
-    public void CanCreateOrderWithIngredientsAndAuth() {
+    public void canCreateOrderWithIngredientsAndAuth() {
        User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
@@ -152,7 +152,7 @@ public class TestOrderCreate {
     }
     @Test
     @DisplayName("Заказ не создан без ингридиентов и с авторизацией")
-    public void CanNotCreateOrderWithoutIngredientsAndWithAuth() {
+    public void canNotCreateOrderWithoutIngredientsAndWithAuth() {
 
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
@@ -177,7 +177,7 @@ public class TestOrderCreate {
     }
     @Test
     @DisplayName("Заказ не создан без ингридиентов и без авторизации")
-    public void CanNotCreateOrderWithoutIngredientsAndWithoutAuth() {
+    public void canNotCreateOrderWithoutIngredientsAndWithoutAuth() {
 
         String json = "{\n" +
                 "    \"ingredients\": []\n" +
@@ -196,7 +196,7 @@ public class TestOrderCreate {
 
     @Test
     @DisplayName("Заказ создан с 2 ингридиентами, без авторизации")
-    public void CanCreateOrderWithIngredientsWithoutAuth() {
+    public void canCreateOrderWithIngredientsWithoutAuth() {
         String json = "{\n" +
                 "    \"ingredients\": [\"" + ingredientsClient.getRandomIngredientHash() + "\", \"" + ingredientsClient.getRandomIngredientHash() + "\"]\n" +
                 "}";
@@ -213,7 +213,7 @@ public class TestOrderCreate {
     }
     @Test
     @DisplayName("(Падение ожидаемо)Заказ не создан c двумя ингридиентами, один из них с неверным хэшем (без авторизации)")
-    public void CanNotCreateOrderWithWrongAndRightHashIngredients() {
+    public void canNotCreateOrderWithWrongAndRightHashIngredients() {
         //Этот тест ожидаемо падает. Если проверять вариант заказа верный хэш + неверный хэш, то заказ успешно создается, хотя не должен, как следует из текста ожидаемой ошибки.
 
         String randomIngredientId = RandomStringUtils.randomNumeric(24);
@@ -234,7 +234,7 @@ public class TestOrderCreate {
     }
     @Test
     @DisplayName("Заказ не создан c одним ингридиентом с неверным хэшем (с авторизацией)")
-    public void CanNotCreateOrderWithWrongHashIngredient() {
+    public void canNotCreateOrderWithWrongHashIngredient() {
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
         createResponse

@@ -51,7 +51,7 @@ public class TestOrderReceive {
     }
     @Test
     @DisplayName("Получение списка заказов с авторизацией")
-    public void CanReceiveOrderListWithAuth() {
+    public void canReceiveOrderListWithAuth() {
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
         createResponse
@@ -109,7 +109,7 @@ public class TestOrderReceive {
     }
     @Test
     @DisplayName("Ошибка получения списка заказов без авторизации")
-    public void CanReceiveOrderListWithoutAuth() {
+    public void canReceiveOrderListWithoutAuth() {
 
         String json = "{\n" +
                 "    \"ingredients\": [\"" + ingredientsClient.getRandomIngredientHash() + "\"]\n" +
@@ -130,7 +130,7 @@ public class TestOrderReceive {
     }
     @Test
     @DisplayName("(Падение ожидаемо)Ограничение на 50 элементов списка заказов, с авторизацией")
-    public void CanReceiveOrderList50Limit() {
+    public void canReceiveOrderList50Limit() {
         //Этот тест ожидаемо падает, ограничение на 50 заказов не работает
         User user = UserGenerator.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
