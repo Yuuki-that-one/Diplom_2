@@ -55,22 +55,22 @@ public class UserClient extends StellarRestClient{
                 .then();
     }
     @Step("Edit user info from server")
-    public ValidatableResponse editUserInfo(String accessToken, String json) {
+    public ValidatableResponse editUserInfo(String accessToken, User user) {
         return given()
                 .spec(getBaseReqSpec())
                 .header("Authorization", accessToken)
                 .and()
-                .body(json)
+                .body(user)
                 .when()
                 .patch(USER_URI + "user/")
                 .then();
     }
     @Step("Edit user info from server without Authorization")
-    public ValidatableResponse editUserInfoWithoutAuth(String json) {
+    public ValidatableResponse editUserInfoWithoutAuth(User user) {
         return given()
                 .spec(getBaseReqSpec())
                 .and()
-                .body(json)
+                .body(user)
                 .when()
                 .patch(USER_URI + "user/")
                 .then();

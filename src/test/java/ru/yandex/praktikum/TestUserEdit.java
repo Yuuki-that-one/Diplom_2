@@ -1,13 +1,11 @@
 package ru.yandex.praktikum;
 
-import com.github.javafaker.Faker;
 import io.qameta.allure.junit4.DisplayName;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.response.ValidatableResponse;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -17,8 +15,6 @@ import ru.yandex.praktikum.model.User;
 import ru.yandex.praktikum.model.UserCredentials;
 import ru.yandex.praktikum.model.UserGenerator;
 
-import java.util.Locale;
-
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 import static org.hamcrest.CoreMatchers.is;
@@ -27,7 +23,6 @@ public class TestUserEdit {
 
     private UserClient userClient;
     private String userAccessToken;
-    static Faker faker = new Faker(new Locale("en"));
 
     @BeforeClass
     public static void globalSetUp() {
@@ -97,15 +92,8 @@ public class TestUserEdit {
                 .assertThat()
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
-        String newEmail = faker.internet().safeEmailAddress();
-        String newPassword = RandomStringUtils.randomAlphabetic(10);
-        String newName = RandomStringUtils.randomAlphabetic(10);
-        String json = "{\n" +
-                "    \"email\": \"" + newEmail + "\",\n" +
-                "    \"password\": \"" + newPassword + "\",\n" +
-                "    \"name\": \"" + newName + "\"\n" +
-                "}";
-        userClient.editUserInfo(userAccessToken, json)  //проверяем, что после редактирования возвращаются новые email и имя (пароль тут не приходит)
+        User newUser = UserGenerator.getRandom();
+      userClient.editUserInfo(userAccessToken, newUser)  //проверяем, что после редактирования возвращаются новые email и имя (пароль тут не приходит)
                 .assertThat()
                 .statusCode(SC_OK)
                 .and()
@@ -113,11 +101,11 @@ public class TestUserEdit {
                 .body("success", is(true))
                 .and()
                 .assertThat()
-                .body("user.email", is(newEmail.toLowerCase()))
+                .body("user.email", is(newUser.getEmail().toLowerCase()))
                 .and()
                 .assertThat()
-                .body("user.name", is(newName));
-        userClient.login(UserCredentials.fromDirect(newEmail, newPassword)) //проверяем, что новый логин и пароль подходят
+                .body("user.name", is(newUser.getName()));
+        userClient.login(UserCredentials.fromDirect(newUser.getEmail(), newUser.getPassword())) //проверяем, что новый логин и пароль подходят
                 .assertThat()
                 .body("success", is(true));
     }
@@ -130,15 +118,8 @@ public class TestUserEdit {
                 .assertThat()
                 .body("success", is(true));
         userAccessToken = createResponse.extract().path("accessToken");
-        String newEmail = faker.internet().safeEmailAddress();
-        String newPassword = RandomStringUtils.randomAlphabetic(10);
-        String newName = RandomStringUtils.randomAlphabetic(10);
-        String json = "{\n" +
-                "    \"email\": \"" + newEmail + "\",\n" +
-                "    \"password\": \"" + newPassword + "\",\n" +
-                "    \"name\": \"" + newName + "\"\n" +
-                "}";
-        userClient.editUserInfoWithoutAuth(json)  //отправляем json методом patch без токена
+        User newUser = UserGenerator.getRandom();
+        userClient.editUserInfoWithoutAuth(newUser)  //отправляем json методом patch без токена
                 .statusCode(SC_UNAUTHORIZED)
                 .and()
                 .assertThat()
